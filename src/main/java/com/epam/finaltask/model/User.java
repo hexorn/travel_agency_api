@@ -4,19 +4,26 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.Entity;
+import com.epam.finaltask.utils.UuidV7Generator;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
+@Table(name = "users")
 public class User {
-
+    @Id
+    @GeneratedValue(generator = "uuid7")
+    @GenericGenerator(name = "uuid7", type = UuidV7Generator.class)
     private UUID id;
 
     private String username;
 
     private String password;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "user")
     private List<Voucher> vouchers;
 
     private String phoneNumber;
