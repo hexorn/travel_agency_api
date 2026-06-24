@@ -1,0 +1,40 @@
+package com.epam.finaltask.dto.request;
+
+import com.epam.finaltask.dto.response.VoucherDTO;
+import com.epam.finaltask.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+public class UserSignUpRequestDto {
+    @NotBlank
+    @Size(min = 5, max = 100)
+    @Email(message = "Email must be valid")
+    private String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 30, message = "Password must be between 8 and 30 characters")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$",
+            message = "Password must contain at least one digit, one lowercase, one uppercase letter, and one special character"
+    )
+    private String password;
+
+    @NotBlank(message = "First name is required")
+    @Size(min = 1)
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(min = 1)
+    private String lastName;
+
+
+}
