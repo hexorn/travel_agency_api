@@ -34,9 +34,6 @@ public class JwtServiceImpl implements JwtService {
 
     private SecretKey getSigningKey() {
         byte[] bytes = this.secretKey.getBytes();
-        for(byte b : bytes) {
-            System.out.println("SECRET IS " + b);
-        }
 
         return Keys.hmacShaKeyFor(this.secretKey.getBytes());
     }
@@ -47,7 +44,6 @@ public class JwtServiceImpl implements JwtService {
         return buildToken(claims);
     }
 
-//    private Map<String, Object> buildClaims(UserDetails userDetails) {
     private Map<String, Object> buildClaims(User userDetails) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof User customUserDetails) {
@@ -97,46 +93,6 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token)
                 .getPayload();
     }
-//    public Optional<String> extractEmail(String token) {
-//        try {
-//            Claims claims = Jwts.parser()     // (1)
-//
-////                    .keyLocator(keyLocator) // (2) dynamically locate signing or encryption keys
-//                    //.verifyWith(key)      //     or a constant key used to verify all signed JWTs
-//                    //.decryptWith(key)     //     or a constant key used to decrypt all encrypted JWTs
-//                    .verifyWith(this.getSigningKey())
-//                    .build()                // (3)
-//
-//                    .parseSignedClaims(token).getPayload();        // (4) or parseSignedClaims, parseEncryptedClaims, parseSignedContent, etc
-//            return Optional.of(claims.get("email", String.class));
-//            // we can safely trust the JWT
-//        }
-//        catch (JwtException ex) {   // (5)
-//            System.out.println("ERROR extracting email claim" + ex.getMessage());
-//            return Optional.empty();
-//            // we *cannot* use the JWT as intended by its creator
-//        }
-//    }
-
-//    public String generateToken(User user) {
-//        //TODO
-//        //TOKEN structure
-//        //user email
-//        //user role
-//        return Jwts.builder().claim("role", user.getRole()).claim("email", user.getEmail()).issuedAt(new Date(System.currentTimeMillis())).expiration(new Date(System.currentTimeMillis() + tokenExpiration)).signWith(getSigningKey()).compact();
-////        return "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiVVNFUiIsImVtYWlsIjoidGVzdFVzZXI0NzY5QGdtYWlsLmNvbSJ9.kYxcabF2GnebGvSgckWkvQvhLroLz7OEJ6zGVwKKZCeefbG5dogisozUVpZttD3tYBd15mBAdXJAZ1HyRcENwA";
-//    }
-
-//    private SecretKey getSigningKey() {
-//        byte[] bytes = secretKey.getBytes();
-//
-//        for(byte b : bytes) {
-//            System.out.println("SECRET IS " + b);
-//        }
-//
-//        return Keys.hmacShaKeyFor(secretKey.getBytes());
-//    }
-//
 
     @Override
     public boolean verifyToken(String token) {
