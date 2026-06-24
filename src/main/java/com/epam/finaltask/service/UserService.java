@@ -2,14 +2,20 @@ package com.epam.finaltask.service;
 
 import java.util.UUID;
 
-import com.epam.finaltask.dto.UserDTO;
+import com.epam.finaltask.dto.request.*;
+import com.epam.finaltask.dto.response.UserDTO;
+import com.epam.finaltask.dto.response.UserSignInResponseDto;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService {
-    UserDTO register(UserDTO userDTO);
-
-    UserDTO updateUser(String username, UserDTO userDTO);
-
-    UserDTO getUserByUsername(String username);
-    UserDTO changeAccountStatus(UserDTO userDTO);
-    UserDTO getUserById(UUID id);
+    UserDTO register(UserSignUpRequestDto userDTO);
+    UserSignInResponseDto authorize(UserSignInRequestDto userSignInRequestDto);
+    UserDTO updateUser(String userId, UserDTO userDTO);
+    UserDTO getUserByEmail(String email);
+    UserDTO changeAccountStatus(String userId, UserChangeStatusRequestDto userDTO);
+    UserDTO getUserById(String id);
+    PagedModel<UserDTO> getAll(UserSearchQueryParamsRequestDto queryParams, Pageable pageable);
+    UserDetailsService getUserDetailsService();
 }

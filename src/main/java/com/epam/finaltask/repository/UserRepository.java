@@ -6,8 +6,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.epam.finaltask.model.User;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
-    boolean existsByUsername(String username);
-    Optional<User> findUserByUsername(String username);
+public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
+    boolean existsByEmail(String email);
+    Optional<User> findUserByEmail(String email);
 }

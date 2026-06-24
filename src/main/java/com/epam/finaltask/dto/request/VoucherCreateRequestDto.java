@@ -3,6 +3,8 @@ package com.epam.finaltask.dto.request;
 import com.epam.finaltask.model.HotelType;
 import com.epam.finaltask.model.TourType;
 import com.epam.finaltask.model.TransferType;
+import com.epam.finaltask.validators.ValidDateRange;
+import com.epam.finaltask.validators.ValidEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
+@ValidDateRange
 public class VoucherCreateRequestDto {
     @NotBlank(message = "Title cannot be blank")
     private String title;
@@ -25,12 +28,15 @@ public class VoucherCreateRequestDto {
     private Double price;
 
     @NotNull(message = "Tour type cannot be null")
+//    @ValidEnum(enumClass = TourType.class, message = "Invalid tour type")
     private TourType tourType;
 
     @NotNull(message = "Transfer type cannot be null")
+//    @ValidEnum(enumClass = TransferType.class, message = "Invalid transfer type")
     private TransferType transferType;
 
     @NotNull(message = "Hotel type cannot be null")
+//    @ValidEnum(enumClass = HotelType.class, message = "Invalid hotel type")
     private HotelType hotelType;
 
     @NotNull(message = "Arrival date cannot be null")

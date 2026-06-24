@@ -1,14 +1,25 @@
 package com.epam.finaltask.service;
 
-import com.epam.finaltask.dto.VoucherDTO;
+import com.epam.finaltask.dto.request.VoucherCreateRequestDto;
+import com.epam.finaltask.dto.request.VoucherHotStatusUpdateRequestDto;
+import com.epam.finaltask.dto.request.VoucherStatusUpdateRequestDto;
+import com.epam.finaltask.dto.request.VoucherUpdateRequestDto;
+import com.epam.finaltask.dto.response.VoucherDTO;
+import com.epam.finaltask.dto.request.VoucherSearchQueryParamsRequestDto;
 import com.epam.finaltask.mapper.VoucherMapper;
 import com.epam.finaltask.model.*;
 import com.epam.finaltask.repository.UserRepository;
 import com.epam.finaltask.repository.VoucherRepository;
+import com.epam.finaltask.specification.VoucherSearchSpecifications;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,17 +31,23 @@ public class VoucherServiceImpl implements VoucherService{
     private final VoucherMapper voucherMapper;
 
     @Override
-    public VoucherDTO create(VoucherDTO voucherDTO) {
-        Voucher voucher = voucherMapper.toVoucher(voucherDTO);
+    public VoucherDTO create(VoucherCreateRequestDto voucherDTO) {
+        Voucher voucher = voucherMapper.toVoucherCreate(voucherDTO);
+        voucher.setStatus(VoucherStatus.AVAILABLE);
 
         return voucherMapper.toVoucherDTO(voucherRepository.save(voucher));
     }
 
     @Override
-    public VoucherDTO order(String id, String userId) {
-        Optional<Voucher> optionalVoucher = voucherRepository.findById(UUID.fromString(id));
+    public VoucherDTO orderVoucher(String voucherId, String userId) {
+        Optional<Voucher> optionalVoucher = voucherRepository.findById(UUID.fromString(voucherId));
         if(optionalVoucher.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
+            throw new IllegalArgumentException(String.format("Voucher with id: %s not found", voucherId));
+        }
+
+        Voucher voucher = optionalVoucher.get();
+        if(Objects.nonNull(voucher.getUser()) || !voucher.getStatus().equals(VoucherStatus.AVAILABLE)) {
+            throw new IllegalArgumentException("Voucher already ordered");
         }
 
         Optional<User> userOptional = userRepository.findById(UUID.fromString(userId));
@@ -38,25 +55,28 @@ public class VoucherServiceImpl implements VoucherService{
             throw new IllegalArgumentException(String.format("User with id: %s not found", userId));
         }
 
-        Voucher voucher = optionalVoucher.get();
         User user = userOptional.get();
         voucher.setUser(user);
+        voucher.setStatus(VoucherStatus.REGISTERED);
 
         return voucherMapper.toVoucherDTO(voucherRepository.save(voucher));
     }
 
     @Override
-    public VoucherDTO update(String id, VoucherDTO voucherDTO) {
+    public VoucherDTO update(String id, VoucherUpdateRequestDto voucherDTO) {
         Optional<Voucher> voucherOptional = voucherRepository.findById(UUID.fromString(id));
         if(voucherOptional.isEmpty()) {
             throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
         }
-        Voucher voucherPayload = voucherMapper.toVoucher(voucherDTO);
-        if(!voucherOptional.get().getId().equals(voucherPayload.getId())) {
-            throw new IllegalArgumentException("Vouchers id do not match");
-        }
-//        voucherPayload.setId(voucherOptional.get().getId());
+        Voucher existingVoucher = voucherOptional.get();
+        Voucher voucherPayload = voucherMapper.toVoucherUpdate(voucherDTO);
+//        if(!voucherOptional.get().getId().equals(voucherPayload.getId())) {
+//            throw new IllegalArgumentException("Vouchers id do not match");
+//        }
 
+        voucherPayload.setId(existingVoucher.getId());
+        voucherPayload.setStatus(existingVoucher.getStatus());
+        voucherPayload.setUser(existingVoucher.getUser());
         return voucherMapper.toVoucherDTO(voucherRepository.save(voucherPayload));
     }
 
@@ -72,38 +92,74 @@ public class VoucherServiceImpl implements VoucherService{
         if(voucherOptional.isEmpty()) {
             throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
         }
-        voucherOptional.get().setHot(voucher.isHot());
+        voucherOptional.get().setIsHot(voucher.getIsHot());
 
         return voucherMapper.toVoucherDTO(voucherRepository.save(voucherOptional.get()));
     }
 
     @Override
-    public List<VoucherDTO> findAllByUserId(String userId) {
-        return voucherMapper.toVoucherDTOList(voucherRepository.findAllByUserId(UUID.fromString(userId)));
-    }
-
-    @Override
-    public List<VoucherDTO> findAllByTourType(TourType tourType) {
-        return voucherMapper.toVoucherDTOList(voucherRepository.findAllByTourType(tourType));
-    }
-
-    @Override
-    public List<VoucherDTO> findAllByTransferType(String transferType) {
-        return voucherMapper.toVoucherDTOList(voucherRepository.findAllByTransferType(TransferType.valueOf(transferType)));
-    }
-
-    @Override
-    public List<VoucherDTO> findAllByPrice(Double price) {
-        return voucherMapper.toVoucherDTOList(voucherRepository.findAllByPrice(price));
-    }
-
-    @Override
-    public List<VoucherDTO> findAllByHotelType(HotelType hotelType) {
-        return voucherMapper.toVoucherDTOList(voucherRepository.findAllByHotelType(hotelType));
+    public PagedModel<VoucherDTO> findAllByUserId(String userId, VoucherSearchQueryParamsRequestDto queryParams, Pageable pageable) {
+        Specification<Voucher> specification = Specification.where(VoucherSearchSpecifications.hasTourType(queryParams.getTourType()))
+                .and(VoucherSearchSpecifications.hasHotelType(queryParams.getHotelType()))
+                .and(VoucherSearchSpecifications.hasTransferType(queryParams.getTransferType()))
+                .and(VoucherSearchSpecifications.hasMinPrice(queryParams.getMinPrice()))
+                .and(VoucherSearchSpecifications.hasMaxPrice(queryParams.getMaxPrice()));
+    /// TODO add specification usage
+        Page<Voucher> vouchers = voucherRepository.findAllByUserId(UUID.fromString(userId), pageable);
+        return voucherMapper.toVoucherDtoPage(vouchers);
     }
 
     @Override
     public List<VoucherDTO> findAll() {
         return voucherMapper.toVoucherDTOList(voucherRepository.findAll());
     }
+
+    @Override
+    public PagedModel<VoucherDTO> findAllBySpecification(VoucherSearchQueryParamsRequestDto queryParams, Pageable pageable) {
+
+        Specification<Voucher> specification = Specification.where(VoucherSearchSpecifications.hasTourType(queryParams.getTourType()))
+                .and(VoucherSearchSpecifications.hasHotelType(queryParams.getHotelType()))
+                .and(VoucherSearchSpecifications.hasTransferType(queryParams.getTransferType()))
+//                .and(VoucherSpecifications.hasPrice(queryParams.getPrice()));
+                .and(VoucherSearchSpecifications.hasMinPrice(queryParams.getMinPrice()))
+                .and(VoucherSearchSpecifications.hasMaxPrice(queryParams.getMaxPrice()));
+
+        return voucherMapper.toVoucherDtoPage(voucherRepository.findAll(specification, pageable));
+    }
+
+    @Override
+    public VoucherDTO updateVoucherStatus(String id, VoucherStatusUpdateRequestDto dto) {
+        var voucher = voucherRepository.findById(UUID.fromString(id));
+        if(voucher.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
+        }
+        voucher.get().setStatus(dto.getStatus());
+
+        return voucherMapper.toVoucherDTO(voucherRepository.save(voucher.get()));
+    }
+
+    @Override
+    public VoucherDTO updateVoucherHotStatus(String id, VoucherHotStatusUpdateRequestDto dto) {
+        Optional<Voucher> voucher = voucherRepository.findById(UUID.fromString(id));
+        if(voucher.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
+        }
+
+        voucher.get().setIsHot(dto.isHot());
+
+        return voucherMapper.toVoucherDTO(voucherRepository.save(voucher.get()));
+    }
+
+    @Override
+    public VoucherDTO getVoucherById(String voucherId) {
+        Optional<Voucher> voucherOptional = voucherRepository.findById(UUID.fromString(voucherId));
+        if(voucherOptional.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Voucher with id: %s not found", voucherId));
+        }
+
+        return voucherMapper.toVoucherDTO(voucherOptional.get());
+    }
 }
+
+
+
