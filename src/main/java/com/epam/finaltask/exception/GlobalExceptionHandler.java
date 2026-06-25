@@ -40,14 +40,35 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(Map.ofEntries(Map.entry("error", ex.getMessage())));
+                .body(Map.ofEntries(
+                        Map.entry("error", ex.getMessage()),
+                        Map.entry("messageCode", "USER_NOT_FOUND")
+                ));
+    }
+
+    @ExceptionHandler(VoucherEntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVoucherEntityNotFoundException(VoucherEntityNotFoundException ex) {
+
+        return ResponseEntity
+                .badRequest()
+                .body(Map.ofEntries(
+                        Map.entry("error", ex.getMessage()),
+                        Map.entry("messageCode", "VOUCHER_NOT_FOUND")
+                ));
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
+//    public ResponseEntity<InvalidCredentialsException> handleInvalidCredentialsException(InvalidCredentialsException ex) {
     public ResponseEntity<Map<String, String>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
 
         return ResponseEntity
                 .badRequest()
-                .body(Map.ofEntries(Map.entry("error", ex.getMessage())));
+                .body(Map.ofEntries(
+                        Map.entry("message", ex.getMessage()),
+                        Map.entry("messageCode", "INVALID_CREDENTIALS")
+                ));
+//        return ResponseEntity
+//                .badRequest()
+//                .body(ex);
     }
 }

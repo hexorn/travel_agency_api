@@ -8,7 +8,7 @@ import java.util.UUID;
 import jakarta.validation.constraints.*;
 @Setter
 @Getter
-public class VoucherDTO {
+public class VoucherDto {
 
     private String id;
 

@@ -15,8 +15,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface VoucherRepository extends JpaRepository<Voucher, UUID>, JpaSpecificationExecutor<Voucher> {
     Page<Voucher> findAllByUserId(UUID userId, Pageable pageable);
-    List<Voucher> findAllByTourType(TourType tourType);
-    List<Voucher> findAllByTransferType(TransferType transferType);
-    List<Voucher> findAllByPrice(Double price);
-    List<Voucher> findAllByHotelType(HotelType hotelType);
 }

@@ -1,7 +1,7 @@
 package com.epam.finaltask.mapper;
 
 import com.epam.finaltask.dto.request.UserSignUpRequestDto;
-import com.epam.finaltask.dto.response.UserDTO;
+import com.epam.finaltask.dto.response.UserDto;
 import com.epam.finaltask.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,13 +14,13 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     @Mapping(target = "password", ignore = true)
-    User toUser(UserDTO userDTO);
-    UserDTO toUserDTO(User user);
+    User toUser(UserDto userDTO);
+    UserDto toUserDTO(User user);
     User toUserSignUp(UserSignUpRequestDto userDto);
-    List<User> toUserList(List<UserDTO> userDTO);
-    List<UserDTO> toUserDTOList(List<User> user);
-    default PagedModel<UserDTO> toUserDtoPage(Page<User> usersPage) {
-        List<UserDTO> userDtoList = toUserDTOList(usersPage.getContent());
+    List<User> toUserList(List<UserDto> userDTO);
+    List<UserDto> toUserDTOList(List<User> user);
+    default PagedModel<UserDto> toUserDtoPage(Page<User> usersPage) {
+        List<UserDto> userDtoList = toUserDTOList(usersPage.getContent());
         return new PagedModel<>(new PageImpl<>(userDtoList, usersPage.getPageable(), usersPage.getTotalElements()));
     }
 }

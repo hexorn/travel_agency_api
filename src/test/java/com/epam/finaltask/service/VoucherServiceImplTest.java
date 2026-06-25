@@ -4,13 +4,14 @@ import com.epam.finaltask.dto.request.VoucherCreateRequestDto;
 import com.epam.finaltask.dto.request.VoucherHotStatusUpdateRequestDto;
 import com.epam.finaltask.dto.request.VoucherStatusUpdateRequestDto;
 import com.epam.finaltask.dto.request.VoucherUpdateRequestDto;
-import com.epam.finaltask.dto.response.VoucherDTO;
+import com.epam.finaltask.dto.response.VoucherDto;
 import com.epam.finaltask.mapper.VoucherMapper;
 import com.epam.finaltask.model.User;
 import com.epam.finaltask.model.Voucher;
 import com.epam.finaltask.model.VoucherStatus;
 import com.epam.finaltask.repository.UserRepository;
 import com.epam.finaltask.repository.VoucherRepository;
+import com.epam.finaltask.service.impl.VoucherServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,14 +52,14 @@ public class VoucherServiceImplTest {
         Voucher savedVoucher = new Voucher();
         savedVoucher.setStatus(VoucherStatus.AVAILABLE);
 
-        VoucherDTO expected = new VoucherDTO();
+        VoucherDto expected = new VoucherDto();
 
         when(voucherMapper.toVoucherCreate(dto)).thenReturn(voucher);
         when(voucherRepository.save(voucher)).thenReturn(savedVoucher);
         when(voucherMapper.toVoucherDTO(savedVoucher)).thenReturn(expected);
 
         // When
-        VoucherDTO result = voucherService.create(dto);
+        VoucherDto result = voucherService.create(dto);
 
         // Then
         assertNotNull(result);
@@ -82,7 +83,7 @@ public class VoucherServiceImplTest {
         voucher.setId(voucherId);
         voucher.setStatus(VoucherStatus.AVAILABLE);
 
-        VoucherDTO expected = new VoucherDTO();
+        VoucherDto expected = new VoucherDto();
 
         when(voucherRepository.findById(voucherId))
                 .thenReturn(Optional.of(voucher));
@@ -97,7 +98,7 @@ public class VoucherServiceImplTest {
                 .thenReturn(expected);
 
         // When
-        VoucherDTO result =
+        VoucherDto result =
                 voucherService.orderVoucher(voucherId.toString(), userId.toString());
 
         // Then
@@ -188,7 +189,7 @@ public class VoucherServiceImplTest {
 
         Voucher payload = new Voucher();
 
-        VoucherDTO expected = new VoucherDTO();
+        VoucherDto expected = new VoucherDto();
 
         when(voucherRepository.findById(voucherId))
                 .thenReturn(Optional.of(existingVoucher));
@@ -202,7 +203,7 @@ public class VoucherServiceImplTest {
         when(voucherMapper.toVoucherDTO(payload))
                 .thenReturn(expected);
 
-        VoucherDTO result =
+        VoucherDto result =
                 voucherService.update(voucherId.toString(), dto);
 
         assertNotNull(result);
@@ -251,7 +252,7 @@ public class VoucherServiceImplTest {
 
         dto.setStatus(VoucherStatus.PAID);
 
-        VoucherDTO expected = new VoucherDTO();
+        VoucherDto expected = new VoucherDto();
 
         when(voucherRepository.findById(voucherId))
                 .thenReturn(Optional.of(voucher));
@@ -262,7 +263,7 @@ public class VoucherServiceImplTest {
         when(voucherMapper.toVoucherDTO(voucher))
                 .thenReturn(expected);
 
-        VoucherDTO result =
+        VoucherDto result =
                 voucherService.updateVoucherStatus(
                         voucherId.toString(),
                         dto
@@ -285,7 +286,7 @@ public class VoucherServiceImplTest {
 
         dto.setHot(true);
 
-        VoucherDTO expected = new VoucherDTO();
+        VoucherDto expected = new VoucherDto();
 
         when(voucherRepository.findById(voucherId))
                 .thenReturn(Optional.of(voucher));
@@ -296,7 +297,7 @@ public class VoucherServiceImplTest {
         when(voucherMapper.toVoucherDTO(voucher))
                 .thenReturn(expected);
 
-        VoucherDTO result =
+        VoucherDto result =
                 voucherService.updateVoucherHotStatus(
                         voucherId.toString(),
                         dto
@@ -314,7 +315,7 @@ public class VoucherServiceImplTest {
 
         Voucher voucher = new Voucher();
 
-        VoucherDTO expected = new VoucherDTO();
+        VoucherDto expected = new VoucherDto();
 
         when(voucherRepository.findById(voucherId))
                 .thenReturn(Optional.of(voucher));
@@ -322,7 +323,7 @@ public class VoucherServiceImplTest {
         when(voucherMapper.toVoucherDTO(voucher))
                 .thenReturn(expected);
 
-        VoucherDTO result =
+        VoucherDto result =
                 voucherService.getVoucherById(voucherId.toString());
 
         assertNotNull(result);

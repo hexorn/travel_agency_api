@@ -1,16 +1,14 @@
 package com.epam.finaltask.restcontroller;
 
-import com.epam.finaltask.dto.request.UserCreateRequestDto;
 import com.epam.finaltask.dto.request.UserSignInRequestDto;
 import com.epam.finaltask.dto.request.UserSignUpRequestDto;
-import com.epam.finaltask.dto.response.UserDTO;
+import com.epam.finaltask.dto.response.UserDto;
 import com.epam.finaltask.jwt.JwtService;
 import com.epam.finaltask.service.UserService;
 import com.epam.finaltask.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.epam.finaltask.dto.response.UserSignInResponseDto;
@@ -31,7 +29,7 @@ public class AuthenticationRestController {
 
     @GetMapping("/profile")
     @JsonView(Views.Public.class)
-    public UserDTO getProfileInformation(HttpServletRequest request) {
+    public UserDto getProfileInformation(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         String authHeader = request.getHeader(HEADER_NAME);
         String jwt = authHeader.substring(BEARER_PREFIX.length());
@@ -41,7 +39,7 @@ public class AuthenticationRestController {
     }
 
     @PostMapping("/sign-up")
-    public UserDTO signUpUser(@RequestBody @Valid UserSignUpRequestDto userDto) {
+    public UserDto signUpUser(@RequestBody @Valid UserSignUpRequestDto userDto) {
         return userService.register(userDto);
     }
 }

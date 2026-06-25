@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonView(Views.Public.class)
-public class UserDTO {
+public class UserDto {
 
 	private String id;
 
@@ -27,7 +27,7 @@ public class UserDTO {
     private String role;
 
     @JsonView(Views.Internal.class)
-	private List<VoucherDTO> vouchers;
+	private List<VoucherDto> vouchers;
 
 	private Double balance;
 

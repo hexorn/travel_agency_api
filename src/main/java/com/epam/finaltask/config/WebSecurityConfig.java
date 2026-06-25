@@ -45,26 +45,21 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
-                .headers(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request
-                // Можно указать конкретный путь, * - 1 уровень вложенности, ** - любое количество уровней вложенности
-                .requestMatchers("/api/auth/**", "/swagger-ui/**",  "/swagger-resources/*", "/error", "/h2-console/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/vouchers").permitAll()
-                        .requestMatchers(HttpMethod.PATCH,"/api/vouchers/*/hot-status", "/api/vouchers/*/status").hasRole(Role.MANAGER.name())
-                        .requestMatchers(HttpMethod.POST,"/api/vouchers").hasRole(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT,"/api/vouchers/*").hasRole(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.DELETE,"/api/vouchers/*").hasRole(Role.ADMIN.name())
-                        .requestMatchers("/api/users/**").hasRole(Role.ADMIN.name())
-//                        .requestMatchers(HttpMethod.PATCH,"/api/vouchers/*/hot-status", "/api/vouchers/*/status").ac
-//                .requestMatchers("/api/users/**").permitAll()
-//                .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
-//                .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
+            .headers(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(request -> request
+            .requestMatchers("/api/auth/**", "/swagger-ui/**",  "/swagger-resources/*", "/error", "/h2-console/**").permitAll()
+            .requestMatchers(HttpMethod.GET,"/api/vouchers").permitAll()
+            .requestMatchers(HttpMethod.PATCH,"/api/vouchers/*/hot-status", "/api/vouchers/*/status").hasRole(Role.MANAGER.name())
+            .requestMatchers(HttpMethod.POST,"/api/vouchers").hasRole(Role.ADMIN.name())
+            .requestMatchers(HttpMethod.PUT,"/api/vouchers/*").hasRole(Role.ADMIN.name())
+            .requestMatchers(HttpMethod.DELETE,"/api/vouchers/*").hasRole(Role.ADMIN.name())
+            .requestMatchers("/api/users/**").hasRole(Role.ADMIN.name())
+            .anyRequest().authenticated())
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -73,13 +68,13 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allows all origins, HTTP methods, and headers
         configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
@@ -116,12 +111,4 @@ public class WebSecurityConfig {
                 .role(Role.MANAGER.name()).implies(Role.USER.name())
                 .build();
     }
-
-    /// Pre-post method security
-//    @Bean
-//    static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
-//        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-//        expressionHandler.setRoleHierarchy(roleHierarchy);
-//        return expressionHandler;
-//    }
 }

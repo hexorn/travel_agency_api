@@ -7,28 +7,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.awt.print.Pageable;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.epam.finaltask.dto.request.*;
+import com.epam.finaltask.dto.response.UserDto;
 import com.epam.finaltask.dto.response.UserSignInResponseDto;
 import com.epam.finaltask.jwt.JwtService;
-import com.epam.finaltask.specification.UserSearchSpecifications;
+import com.epam.finaltask.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.epam.finaltask.dto.response.UserDTO;
 import com.epam.finaltask.mapper.UserMapper;
 import com.epam.finaltask.model.User;
 import com.epam.finaltask.repository.UserRepository;
@@ -59,18 +53,18 @@ public class UserServiceImplTest {
     User user = new User();
     user.setEmail(email);
 
-    UserDTO expectedUserDTO = new UserDTO();
-    expectedUserDTO.setEmail(email);
+    UserDto expectedUserDto = new UserDto();
+    expectedUserDto.setEmail(email);
 
     when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
-    when(userMapper.toUserDTO(any(User.class))).thenReturn(expectedUserDTO);
+    when(userMapper.toUserDTO(any(User.class))).thenReturn(expectedUserDto);
 
     // When
-    UserDTO result = userService.getUserByEmail(email);
+    UserDto result = userService.getUserByEmail(email);
 
     // Then
     assertNotNull(result, "The returned UserDTO should not be null");
-    assertEquals(expectedUserDTO.getEmail(), result.getEmail(),
+    assertEquals(expectedUserDto.getEmail(), result.getEmail(),
         "The username should match the expected value");
 
     verify(userRepository, times(1)).findUserByEmail(email);
@@ -85,7 +79,7 @@ public class UserServiceImplTest {
       UserChangeStatusRequestDto userChangeStatusRequestDto = new UserChangeStatusRequestDto();
       userChangeStatusRequestDto.setActive(true);
 
-      UserDTO userDTO = new UserDTO();
+      UserDto userDTO = new UserDto();
       userDTO.setId(userId);
       userDTO.setActive(true);
 
@@ -104,7 +98,7 @@ public class UserServiceImplTest {
     when(userMapper.toUserDTO(any(User.class))).thenReturn(userDTO);
 
     // When
-    UserDTO resultDTO = userService.changeAccountStatus(userId, userChangeStatusRequestDto);
+    UserDto resultDTO = userService.changeAccountStatus(userId, userChangeStatusRequestDto);
 
     // Then
     assertNotNull(resultDTO, "The returned UserDTO should not be null");
@@ -123,18 +117,18 @@ public class UserServiceImplTest {
     User user = new User();
     user.setId(id);
 
-    UserDTO expectedUserDTO = new UserDTO();
-    expectedUserDTO.setId(id.toString());
+    UserDto expectedUserDto = new UserDto();
+    expectedUserDto.setId(id.toString());
 
     when(userRepository.findById(id)).thenReturn(Optional.of(user));
-    when(userMapper.toUserDTO(any(User.class))).thenReturn(expectedUserDTO);
+    when(userMapper.toUserDTO(any(User.class))).thenReturn(expectedUserDto);
 
     // When
-    UserDTO resultDTO = userService.getUserById(id.toString());
+    UserDto resultDTO = userService.getUserById(id.toString());
 
     // Then
     assertNotNull(resultDTO, "The returned UserDTO should not be null");
-    assertEquals(expectedUserDTO.getId(), resultDTO.getId(),
+    assertEquals(expectedUserDto.getId(), resultDTO.getId(),
         "The user ID should match the expected value");
 
     verify(userRepository, times(1)).findById(id);
@@ -155,7 +149,7 @@ public class UserServiceImplTest {
         User savedUser = new User();
         savedUser.setEmail(request.getEmail());
 
-        UserDTO expected = new UserDTO();
+        UserDto expected = new UserDto();
         expected.setEmail(request.getEmail());
 
         when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
@@ -164,7 +158,7 @@ public class UserServiceImplTest {
         when(userMapper.toUserDTO(savedUser)).thenReturn(expected);
 
         // When
-        UserDTO result = userService.register(request);
+        UserDto result = userService.register(request);
 
         // Then
         assertNotNull(result);
@@ -215,14 +209,14 @@ public class UserServiceImplTest {
         User existing = new User();
         existing.setId(UUID.fromString(userId));
 
-        UserDTO dto = new UserDTO();
+        UserDto dto = new UserDto();
         dto.setEmail("new@mail.com");
 
         User updated = new User();
         updated.setId(UUID.fromString(userId));
         updated.setEmail(dto.getEmail());
 
-        UserDTO expected = new UserDTO();
+        UserDto expected = new UserDto();
         expected.setEmail(dto.getEmail());
 
         when(userRepository.findById(UUID.fromString(userId)))
@@ -231,14 +225,14 @@ public class UserServiceImplTest {
         when(userRepository.save(any(User.class)))
                 .thenReturn(updated);
 
-        when(userMapper.toUser(any(UserDTO.class)))
+        when(userMapper.toUser(any(UserDto.class)))
                 .thenReturn(updated);
 
         when(userMapper.toUserDTO(updated))
                 .thenReturn(expected);
 
         // When
-        UserDTO result = userService.updateUser(userId, dto);
+        UserDto result = userService.updateUser(userId, dto);
 
         // Then
         assertNotNull(result);

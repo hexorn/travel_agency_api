@@ -28,15 +28,12 @@ public class VoucherCreateRequestDto {
     private Double price;
 
     @NotNull(message = "Tour type cannot be null")
-//    @ValidEnum(enumClass = TourType.class, message = "Invalid tour type")
     private TourType tourType;
 
     @NotNull(message = "Transfer type cannot be null")
-//    @ValidEnum(enumClass = TransferType.class, message = "Invalid transfer type")
     private TransferType transferType;
 
     @NotNull(message = "Hotel type cannot be null")
-//    @ValidEnum(enumClass = HotelType.class, message = "Invalid hotel type")
     private HotelType hotelType;
 
     @NotNull(message = "Arrival date cannot be null")

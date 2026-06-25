@@ -4,7 +4,7 @@ import com.epam.finaltask.dto.request.VoucherCreateRequestDto;
 import com.epam.finaltask.dto.request.VoucherHotStatusUpdateRequestDto;
 import com.epam.finaltask.dto.request.VoucherStatusUpdateRequestDto;
 import com.epam.finaltask.dto.request.VoucherUpdateRequestDto;
-import com.epam.finaltask.dto.response.VoucherDTO;
+import com.epam.finaltask.dto.response.VoucherDto;
 import com.epam.finaltask.dto.request.VoucherSearchQueryParamsRequestDto;
 import com.epam.finaltask.service.VoucherService;
 import jakarta.validation.Valid;
@@ -22,24 +22,24 @@ public class VoucherRestController  {
     private final VoucherService voucherService;
 
     @GetMapping("/user/{userId}")
-    public PagedModel<VoucherDTO> getVouchersByUserId(@PathVariable(name = "userId") String userId,
+    public PagedModel<VoucherDto> getVouchersByUserId(@PathVariable(name = "userId") String userId,
                                                       @ModelAttribute VoucherSearchQueryParamsRequestDto queryParams,
                                                       @PageableDefault Pageable pageable) {
         return voucherService.findAllByUserId(userId, queryParams, pageable);
     }
 
     @PatchMapping("/{voucherId}/status")
-    public VoucherDTO updateVoucherStatus(@PathVariable(name = "voucherId") String id, @Valid @RequestBody VoucherStatusUpdateRequestDto voucherDTO ) {
+    public VoucherDto updateVoucherStatus(@PathVariable(name = "voucherId") String id, @Valid @RequestBody VoucherStatusUpdateRequestDto voucherDTO ) {
         return voucherService.updateVoucherStatus(id, voucherDTO);
     }
 
     @PatchMapping("/{voucherId}/hot-status")
-    public VoucherDTO updateVoucherHotStatus(@PathVariable(name = "voucherId") String id, @RequestBody VoucherHotStatusUpdateRequestDto statusUpdateDto) {
+    public VoucherDto updateVoucherHotStatus(@PathVariable(name = "voucherId") String id, @RequestBody VoucherHotStatusUpdateRequestDto statusUpdateDto) {
         return voucherService.updateVoucherHotStatus(id, statusUpdateDto);
     }
 
     @PostMapping
-    public ResponseEntity<VoucherDTO> createVoucher(@RequestBody @Valid VoucherCreateRequestDto voucherDTO) {
+    public ResponseEntity<VoucherDto> createVoucher(@RequestBody @Valid VoucherCreateRequestDto voucherDTO) {
         return ResponseEntity.status(201).body(voucherService.create(voucherDTO));
     }
 
@@ -56,22 +56,22 @@ public class VoucherRestController  {
 //    }
 
     @GetMapping("/{voucherId}")
-    public VoucherDTO getVoucher(@PathVariable(name = "voucherId") String voucherId) {
+    public VoucherDto getVoucher(@PathVariable(name = "voucherId") String voucherId) {
         return voucherService.getVoucherById(voucherId);
     }
 
     @GetMapping
-    public PagedModel<VoucherDTO> getVouchers(@ModelAttribute VoucherSearchQueryParamsRequestDto queryParams, @PageableDefault Pageable pageable) {
+    public PagedModel<VoucherDto> getVouchers(@ModelAttribute VoucherSearchQueryParamsRequestDto queryParams, @PageableDefault Pageable pageable) {
         return voucherService.findAllBySpecification(queryParams, pageable);
     }
 
     @PatchMapping("/{voucherId}/users/{userId}")
-    public VoucherDTO orderVoucher(@PathVariable(name = "voucherId") String voucherId, @PathVariable(name = "userId") String userId) {
+    public VoucherDto orderVoucher(@PathVariable(name = "voucherId") String voucherId, @PathVariable(name = "userId") String userId) {
         return voucherService.orderVoucher(voucherId, userId);
     }
 
     @PutMapping("/{voucherId}")
-    public VoucherDTO updateVoucher(@PathVariable(name = "voucherId") String voucherId, @RequestBody @Valid VoucherUpdateRequestDto dto) {
+    public VoucherDto updateVoucher(@PathVariable(name = "voucherId") String voucherId, @RequestBody @Valid VoucherUpdateRequestDto dto) {
         return voucherService.update(voucherId, dto);
     }
 }

@@ -1,15 +1,17 @@
-package com.epam.finaltask.service;
+package com.epam.finaltask.service.impl;
 
 import com.epam.finaltask.dto.request.VoucherCreateRequestDto;
 import com.epam.finaltask.dto.request.VoucherHotStatusUpdateRequestDto;
 import com.epam.finaltask.dto.request.VoucherStatusUpdateRequestDto;
 import com.epam.finaltask.dto.request.VoucherUpdateRequestDto;
-import com.epam.finaltask.dto.response.VoucherDTO;
+import com.epam.finaltask.dto.response.VoucherDto;
 import com.epam.finaltask.dto.request.VoucherSearchQueryParamsRequestDto;
+import com.epam.finaltask.exception.VoucherEntityNotFoundException;
 import com.epam.finaltask.mapper.VoucherMapper;
 import com.epam.finaltask.model.*;
 import com.epam.finaltask.repository.UserRepository;
 import com.epam.finaltask.repository.VoucherRepository;
+import com.epam.finaltask.service.VoucherService;
 import com.epam.finaltask.specification.VoucherSearchSpecifications;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,13 +27,13 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Service
-public class VoucherServiceImpl implements VoucherService{
+public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepository voucherRepository;
     private final UserRepository userRepository;
     private final VoucherMapper voucherMapper;
 
     @Override
-    public VoucherDTO create(VoucherCreateRequestDto voucherDTO) {
+    public VoucherDto create(VoucherCreateRequestDto voucherDTO) {
         Voucher voucher = voucherMapper.toVoucherCreate(voucherDTO);
         voucher.setStatus(VoucherStatus.AVAILABLE);
 
@@ -39,7 +41,7 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public VoucherDTO orderVoucher(String voucherId, String userId) {
+    public VoucherDto orderVoucher(String voucherId, String userId) {
         Optional<Voucher> optionalVoucher = voucherRepository.findById(UUID.fromString(voucherId));
         if(optionalVoucher.isEmpty()) {
             throw new IllegalArgumentException(String.format("Voucher with id: %s not found", voucherId));
@@ -63,7 +65,7 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public VoucherDTO update(String id, VoucherUpdateRequestDto voucherDTO) {
+    public VoucherDto update(String id, VoucherUpdateRequestDto voucherDTO) {
         Optional<Voucher> voucherOptional = voucherRepository.findById(UUID.fromString(id));
         if(voucherOptional.isEmpty()) {
             throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
@@ -86,7 +88,7 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public VoucherDTO changeHotStatus(String id, VoucherDTO voucherDTO) {
+    public VoucherDto changeHotStatus(String id, VoucherDto voucherDTO) {
         Voucher voucher = voucherMapper.toVoucher(voucherDTO);
         Optional<Voucher> voucherOptional = voucherRepository.findById(UUID.fromString(id));
         if(voucherOptional.isEmpty()) {
@@ -98,7 +100,7 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public PagedModel<VoucherDTO> findAllByUserId(String userId, VoucherSearchQueryParamsRequestDto queryParams, Pageable pageable) {
+    public PagedModel<VoucherDto> findAllByUserId(String userId, VoucherSearchQueryParamsRequestDto queryParams, Pageable pageable) {
         Specification<Voucher> specification = Specification.where(VoucherSearchSpecifications.hasTourType(queryParams.getTourType()))
                 .and(VoucherSearchSpecifications.hasHotelType(queryParams.getHotelType()))
                 .and(VoucherSearchSpecifications.hasTransferType(queryParams.getTransferType()))
@@ -110,12 +112,12 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public List<VoucherDTO> findAll() {
+    public List<VoucherDto> findAll() {
         return voucherMapper.toVoucherDTOList(voucherRepository.findAll());
     }
 
     @Override
-    public PagedModel<VoucherDTO> findAllBySpecification(VoucherSearchQueryParamsRequestDto queryParams, Pageable pageable) {
+    public PagedModel<VoucherDto> findAllBySpecification(VoucherSearchQueryParamsRequestDto queryParams, Pageable pageable) {
 
         Specification<Voucher> specification = Specification.where(VoucherSearchSpecifications.hasTourType(queryParams.getTourType()))
                 .and(VoucherSearchSpecifications.hasHotelType(queryParams.getHotelType()))
@@ -128,7 +130,7 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public VoucherDTO updateVoucherStatus(String id, VoucherStatusUpdateRequestDto dto) {
+    public VoucherDto updateVoucherStatus(String id, VoucherStatusUpdateRequestDto dto) {
         var voucher = voucherRepository.findById(UUID.fromString(id));
         if(voucher.isEmpty()) {
             throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
@@ -139,7 +141,7 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public VoucherDTO updateVoucherHotStatus(String id, VoucherHotStatusUpdateRequestDto dto) {
+    public VoucherDto updateVoucherHotStatus(String id, VoucherHotStatusUpdateRequestDto dto) {
         Optional<Voucher> voucher = voucherRepository.findById(UUID.fromString(id));
         if(voucher.isEmpty()) {
             throw new IllegalArgumentException(String.format("Voucher with id: %s not found", id));
@@ -151,10 +153,10 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     @Override
-    public VoucherDTO getVoucherById(String voucherId) {
+    public VoucherDto getVoucherById(String voucherId) {
         Optional<Voucher> voucherOptional = voucherRepository.findById(UUID.fromString(voucherId));
         if(voucherOptional.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Voucher with id: %s not found", voucherId));
+            throw new VoucherEntityNotFoundException(String.format("Voucher with id: %s not found", voucherId));
         }
 
         return voucherMapper.toVoucherDTO(voucherOptional.get());
